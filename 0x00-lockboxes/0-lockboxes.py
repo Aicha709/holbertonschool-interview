@@ -1,19 +1,23 @@
 #!/usr/bin/python3
-""" You have n number of locked boxes in front of you.
-Each box is numbered sequentially from 0 to n - 1 and
-each box may contain keys to the other boxes. """
+"""Module for lockboxes algorithm"""
 
 
 def canUnlockAll(boxes):
-    """ You have n number of locked boxes in front of you.
-    Each box is numbered sequentially from 0 to n - 1 and
-    each box may contain keys to the other boxes. """
-    for key in range(1, len(boxes) - 1):
-        ctr = False
-        for idx in range(len(boxes)):
-            ctr = (key in boxes[idx] and key != idx)
-            if ctr:
-                break
-        if ctr is False:
-            return ctr
-    return True
+    """Determine whether allKeys for all boxes are accessible."""
+    if (
+        not isinstance(boxes, list) or
+        not all(isinstance(box, list) for box in boxes) or
+        not all(isinstance(index, int) for box in boxes for index in box)
+    ):
+        return False
+    indexes = set(range(len(boxes)))
+    newKeys = set(boxes[0]) & indexes
+    allKeys = newKeys.union((0,))
+    while len(newKeys) > 0:
+        index = newKeys.pop()
+        if index < 0 or index >= len(boxes):
+            continue
+        box = set(boxes[index]) - allKeys & indexes
+        newKeys |= box
+        allKeys |= box
+    return len(allKeys) == len(boxes)
