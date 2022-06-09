@@ -1,39 +1,47 @@
 #!/usr/bin/python3
-"""
-Script that reads stdin line by line and computes metrics
-"""
-
 
 import sys
+import signal
 
 
-status_codes = {'200': 0, '301': 0, '400': 0, '401': 0, '403': 0, '404': 0,
-                '405': 0, '500': 0}
-counter = 0
-size = 0
+def log_parsing(function_size, status_code):
+    print('File size: {}'.format(function_size))
+    for key, value in sorted(status_code.items()):
+        if value != 0:
+            print('{}: {}'.format(key, value))
 
+status_code = {"200": 0, "301": 0, "400": 0, "401": 0,
+               "403": 0, "404": 0, "405": 0, "500": 0}
+
+count = 1
+function_size = 0
+
+# split the line in the stdin
 try:
-    for l in sys.stdin:
-        data = l.split()
-        data = data[::-1]
+    for line in sys.stdin:
+        split1 = line.split()
 
-        if len(data) > 2:
-            counter += 1
-            if counter <= 10:
-                size += int(data[0])
-                code = data[1]
+        if len(split1) > 2:
+            file_size = split1[-1]
+            status = split1[-2]
+            function_size = function_size + int(file_size)
 
-            if code in status_codes.keys():
-                status_codes[code] += 1
+# verify if the status sent is in the diccionary created and sum to the status
+            if status in status_code:
+                status_code[status] = status_code[status] + 1
 
-            if counter == 10:
-                print('File size: {}'.format(size))
-                for sc, v in sorted(status_codes.items()):
-                    if v != 0:
-                        print('{}: {}'.format(sc, v))
-                counter = 0
+
+# Every 10 iteractions, prints the value
+        if count % 10 == 0:
+            print('File size: {}'.format(function_size))
+            for key, value in sorted(status_code.items()):
+                if value != 0:
+                    print('{}: {}'.format(key, value))
+
+        count = count + 1
+
+except KeyboardInterrupt:
+    pass
+
 finally:
-    print('File size: {}'.format(size))
-    for sc, v in sorted(status_codes.items()):
-        if v != 0:
-            print('{}: {}'.format(sc, v))
+    log_parsing(function_size, status_code)
