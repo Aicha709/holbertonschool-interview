@@ -1,47 +1,39 @@
 #!/usr/bin/python3
-
+'''Module of script that reads stdin line by line and computes metrics'''
 import sys
-import signal
 
 
-def log_parsing(function_size, status_code):
-    print('File size: {}'.format(function_size))
-    for key, value in sorted(status_code.items()):
-        if value != 0:
-            print('{}: {}'.format(key, value))
-
-status_code = {"200": 0, "301": 0, "400": 0, "401": 0,
-               "403": 0, "404": 0, "405": 0, "500": 0}
-
-count = 1
-function_size = 0
-
-# split the line in the stdin
-try:
-    for line in sys.stdin:
-        split1 = line.split()
-
-        if len(split1) > 2:
-            file_size = split1[-1]
-            status = split1[-2]
-            function_size = function_size + int(file_size)
-
-# verify if the status sent is in the diccionary created and sum to the status
-            if status in status_code:
-                status_code[status] = status_code[status] + 1
+def printOccurrence():
+    """
+    prints the statistics after every 10 lines and/or a keyboard interruption
+    """
+    print("File size: {}".format(fileSize))
+    for key, value in sorted(possibleCodes.items()):
+        if (value != 0):
+            print("{}: {}".format(key, value))
 
 
-# Every 10 iteractions, prints the value
-        if count % 10 == 0:
-            print('File size: {}'.format(function_size))
-            for key, value in sorted(status_code.items()):
-                if value != 0:
-                    print('{}: {}'.format(key, value))
+if __name__ == "__main__":
+    possibleCodes = {"200": 0, "301": 0, "400": 0, "401": 0, "403": 0,
+                     "404": 0, "405": 0, "500": 0}
+    lines = 1
+    fileSize = 0
 
-        count = count + 1
+    try:
+        for line in sys.stdin:
+            try:
+                status = line.split(" ")[-2]
+                size = line.split(" ")[-1]
+                fileSize += int(size)
+                possibleCodes[status] += 1
+            except Exception:
+                continue
+            if lines % 10 == 0:
+                printOccurrence()
+            lines += 1
 
-except KeyboardInterrupt:
-    pass
+    except KeyboardInterrupt:
+        printOccurrence()
+        raise
 
-finally:
-    log_parsing(function_size, status_code)
+    printOccurrence()
