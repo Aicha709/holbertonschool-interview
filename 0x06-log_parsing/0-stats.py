@@ -1,38 +1,41 @@
 #!/usr/bin/python3
-"""stats module
-"""
-from sys import stdin
+""" Script that reads stdin line by line and computes metrics."""
+
+import sys
+
+dlist = {"size": 0,
+         "lines": 1}
+
+errors = {"200": 0, "301": 0, "400": 0, "401": 0,
+          "403": 0, "404": 0, "405": 0, "500": 0}
 
 
-codes = {'200': 0, '301': 0, '400': 0, '401': 0,
-         '403': 0, '404': 0, '405': 0, '500': 0}
-size = 0
+def printf():
+    """ Print codes and numbers"""
+    print("File size: {}".format(dlist["size"]))
+    for key in sorted(errors.keys()):
+        if errors[key] != 0:
+            print("{}: {}".format(key, errors[key]))
 
 
-def print_info():
-    """print_info method print needed info
-    Args:
-        codes (dict): code status
-        size (int): size of files
-    """
-    print("File size: {}".format(size))
-    for key, val in sorted(codes.items()):
-        if val > 0:
-            print("{}: {}".format(key, val))
+def datasize(data):
+    """ Count file codes and size"""
+    dlist["size"] += int(data[-1])
+    if data[-2] in errors:
+        errors[data[-2]] += 1
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     try:
-        for i, line in enumerate(stdin, 1):
+        for line in sys.stdin:
             try:
-                info = line.split()
-                size += int(info[-1])
-                if info[-2] in codes.keys():
-                    codes[info[-2]] += 1
+                datasize(line.split(" "))
             except:
                 pass
-            if not i % 10:
-                print_info()
+            if dlist["lines"] % 10 == 0:
+                printf()
+            dlist["lines"] += 1
     except KeyboardInterrupt:
-        print_info()
+        printf()
         raise
-    print_info()
+    printf()
