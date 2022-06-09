@@ -1,39 +1,38 @@
 #!/usr/bin/python3
-'''Module of script that reads stdin line by line and computes metrics'''
-import sys
+"""stats module
+"""
+from sys import stdin
 
 
-def printOccurrence():
+codes = {'200': 0, '301': 0, '400': 0, '401': 0,
+         '403': 0, '404': 0, '405': 0, '500': 0}
+size = 0
+
+
+def print_info():
+    """print_info method print needed info
+    Args:
+        codes (dict): code status
+        size (int): size of files
     """
-    prints the statistics after every 10 lines and/or a keyboard interruption
-    """
-    print("File size: {}".format(fileSize))
-    for key, value in sorted(possibleCodes.items()):
-        if (value != 0):
-            print("{}: {}".format(key, value))
+    print("File size: {}".format(size))
+    for key, val in sorted(codes.items()):
+        if val > 0:
+            print("{}: {}".format(key, val))
 
-
-if __name__ == "__main__":
-    possibleCodes = {"200": 0, "301": 0, "400": 0, "401": 0, "403": 0,
-                     "404": 0, "405": 0, "500": 0}
-    lines = 1
-    fileSize = 0
-
+if __name__ == '__main__':
     try:
-        for line in sys.stdin:
+        for i, line in enumerate(stdin, 1):
             try:
-                status = line.split(" ")[-2]
-                size = line.split(" ")[-1]
-                fileSize += int(size)
-                possibleCodes[status] += 1
-            except Exception:
-                continue
-            if lines % 10 == 0:
-                printOccurrence()
-            lines += 1
-
+                info = line.split()
+                size += int(info[-1])
+                if info[-2] in codes.keys():
+                    codes[info[-2]] += 1
+            except:
+                pass
+            if not i % 10:
+                print_info()
     except KeyboardInterrupt:
-        printOccurrence()
+        print_info()
         raise
-
-    printOccurrence()
+    print_info()
